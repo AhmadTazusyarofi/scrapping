@@ -1,0 +1,74 @@
+technical:
+  min_bars: 60
+  lookback_days: 180
+  rules:
+    sma_cross:
+      enabled: true
+      fast: 5
+      slow: 20
+    rsi_not_overbought:
+      enabled: false
+      period: 14
+      max: 70
+    macd_bullish:
+      enabled: false
+      fast: 12
+      slow: 26
+      signal: 9
+
+sentiment:
+  # Diverifikasi 2026-08-25. Model yang semula direncanakan
+  # (wong39/indobert-sentiment-classifier) tidak ada di HuggingFace Hub.
+  # Dipilih karena dilatih pada domain finansial: pada probe judul berita saham
+  # Indonesia, model ini menangkap "BEI suspensi saham WSKT karena gagal bayar
+  # obligasi" sebagai NEGATIVE 0.90, sementara kandidat terbaik lainnya
+  # (apriandito/indobert-sentiment-classifier) menyebutnya NETRAL 0.97 sehingga
+  # veto tidak akan aktif. id2label: {0: NEGATIVE, 1: NEUTRAL, 2: POSITIVE}.
+  # Keyakinannya lebih tersebar (0,58-0,98), jadi min_avg_score di bawah perlu
+  # dikalibrasi ulang setelah beberapa minggu riwayat terkumpul (spec §17.4).
+  model: intanm/indonesian_financial_sentiment_analysis
+  articles_per_ticker: 3
+  min_articles: 1
+  min_avg_score: 0.60
+  neutral_weight: 0.0
+  veto_on_strong_negative: true
+  strong_negative_threshold: 0.80
+  batch_size: 8
+
+news:
+  # 'rss' atau 'newsapi'. RSS dipilih setelah probe 2026-08-25 menunjukkan
+  # cakupan NewsAPI tier gratis untuk berita pasar modal berbahasa Indonesia
+  # praktisnya kosong: kata "saham" sendiri tidak mengembalikan apa pun dalam
+  # tiga hari, dan kode emiten saja nihil. RSS memberi 19 artikel relevan untuk
+  # watchlist yang sama, dari 5 permintaan HTTP, tanpa kuota dan tanpa delay.
+  source: rss
+
+  # Biaya RSS sebanding dengan jumlah feed, bukan jumlah emiten: feed diambil
+  # sekali per run lalu disaring per emiten dari kumpulan yang sama.
+  feeds:
+    - https://investasi.kontan.co.id/rss      # paling padat berita per-emiten
+    - https://www.cnbcindonesia.com/market/rss
+    - https://finance.detik.com/rss
+    - https://rss.tempo.co/bisnis
+    - https://feed.liputan6.com/rss/bisnis
+  max_age_hours: 72
+
+  # Dipakai hanya bila source: newsapi
+  page_size: 3
+  max_requests_per_run: 40
+  lookback_days: 3
+  language: id
+
+alerts:
+  cooldown_days: 5
+
+http:
+  timeout_seconds: 15
+  retries: 3
+  backoff_base_seconds: 2
+
+runtime:
+  db_path: data/scanner.db
+  log_dir: logs
+  lock_file: data/scanner.lock
+  max_data_age_days: 4

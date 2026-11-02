@@ -1,0 +1,16 @@
+tickers:
+  - symbol: BBRI.JK
+    name: Bank Rakyat Indonesia
+    aliases: [BBRI, BRI]
+  - symbol: BBCA.JK
+    name: Bank Central Asia
+    aliases: [BBCA, BCA]
+  - symbol: TLKM.JK
+    name: Telkom Indonesia
+    aliases: [TLKM, Telkom]
+  - symbol: ASII.JK
+    name: Astra International
+    aliases: [ASII, Astra]
+  - symbol: ANTM.JK
+    name: Aneka Tambang
+    aliases: [ANTM, Antam]
